@@ -13,23 +13,6 @@ namespace QnA
         static void Main(string[] args)
         {
 
-            Program program = new Program();
-
-            var rootCommand = new RootCommand
-            {
-
-            };
-
-            rootCommand.Description = "";
-            
-            rootCommand.Handler = CommandHandler.Create(() =>
-            {
-
-            });
-
-            rootCommand.InvokeAsync(args).Wait();
-
         }
-
     }
 }

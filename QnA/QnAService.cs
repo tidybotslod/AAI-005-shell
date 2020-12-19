@@ -53,19 +53,18 @@ namespace QnA
         public string QueryEndpointKey { get { return queryEndpointKey; } set { queryEndpointKey = value; } }
         /// <summary>
         /// Create a new QnA Knowledge base, the returned ID and endpoint key should be placed
-        /// in the appsettings.json file or they have to be set manually on every subsequent
-        /// operation.
+        /// in the appsettings.json file or they must be set manually (see properties: KnowledgeBaseID
+        /// and QueryEndpointKey) when a QnAService object is instantiated.
         /// </summary>
-        /// <param name="qnaData">Name and QnaList fields musb be populated.</param>
+        /// <param name="qnaData">Creation data.</param>
         /// <returns>( status,
         ///            knowledgeBaseId,
-        ///            Operation</returns>
+        ///            queryEndPoint )</returns>
         public async Task<(string, string, string)> CreateQnA(CreateKbDTO qnaData)
         {
             Operation op = await Authoring.Knowledgebase.CreateAsync(qnaData);
             op = await MonitorOperation(op);
             string result = op.ResourceLocation;
-            Console.WriteLine($"Create Result = {op.OperationState}");
             if (op.OperationState == OperationStateType.Succeeded)
             {
                 knowledgeBaseID = op.ResourceLocation.Replace("/knowledgebases/", string.Empty);
@@ -74,7 +73,7 @@ namespace QnA
             }
             else
             {
-                return (op.OperationState, "", "");
+                return (op.OperationState, null, null);
             }
         }
         /// <summary>
@@ -157,8 +156,8 @@ namespace QnA
         /// 
         /// Embedded double quotes should be delimited with another double quote [i.e., "This how to embed ""double quotes"" in an answer or question"]
         /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
+        /// <param name="file">path to csv file.</param>
+        /// <returns>List of QnADTO objects, one for each line.</returns>
         public List<QnADTO> LoadCSV(string file)
         {
             // Expected format
@@ -267,7 +266,6 @@ namespace QnA
         private async Task<string> CreateEndpointKey()
         {
             var endpointKeysObject = await Authoring.EndpointKeys.GetKeysAsync();
-            Console.WriteLine($"Set QueryEndpointKey in config file to = {endpointKeysObject.PrimaryEndpointKey}");
             queryEndpointKey = endpointKeysObject.PrimaryEndpointKey;
             return queryEndpointKey;
         }
