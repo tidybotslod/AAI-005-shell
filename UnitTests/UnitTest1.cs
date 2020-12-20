@@ -98,27 +98,7 @@ namespace QnA.Tests
             bool found = answer.Answers[0].Answer.Contains("Because you are important to us");
             return found;
         }
-        private async Task<bool> TrainQnA()
-        {
-            string sampleQuestion = "This present is for my mother, how do I get it to her?";
-            QnASearchResultList answer = await program.Service.Ask(sampleQuestion, false);
-            Assert.IsNotNull(answer);
-            Assert.IsNotNull(answer.Answers);
-            Assert.IsNotNull(answer.Answers[0].Score);
-            double score1 = answer.Answers[0].Score ?? 0.0;
-            string answer1 = answer.Answers[0].Answer;
 
-            await program.Train("..\\..\\..\\..\\Data\\training-faq.csv", false);
-            answer = await program.Service.Ask(sampleQuestion, false);
-
-            Assert.IsNotNull(answer);
-            Assert.IsNotNull(answer.Answers);
-            Assert.IsNotNull(answer.Answers[0].Score);
-            double score2 = answer.Answers[0].Score ?? 0.0;
-            string answer2 = answer.Answers[0].Answer;
-
-            return (String.Compare(answer1, answer2) != 0) || (score2 > score1);
-        }
         private async Task<bool> CleanUp()
         {
             await program.DeleteKnowledgeBase();
@@ -134,7 +114,6 @@ namespace QnA.Tests
                 Task.Run(async () => { Assert.IsTrue(await AddQuestion()); }).Wait();
                 Task.Run(async () => { Assert.IsTrue(await UpdateQuestions()); }).Wait();
                 Task.Run(async () => { Assert.IsTrue(await AddFullText()); }).Wait();
-                //Task.Run(async () => { Assert.IsTrue(await TrainQnA()); }).Wait();
             }
             finally
             {
