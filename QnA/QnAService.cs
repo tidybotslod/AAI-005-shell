@@ -151,6 +151,21 @@ namespace QnA
             await Authoring.Knowledgebase.DeleteAsync(knowledgeBaseID);
         }
         /// <summary>
+        /// Delete the knowledge base.
+        /// </summary>
+        public async Task Publish()
+        {
+            await Authoring.Knowledgebase.PublishAsync(knowledgeBaseID);
+        }
+        /// <summary>
+        /// Load answer and questions from a CSV formated file. The file expected to have 
+        /// "Answer", "question 1", "question 2", ...
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <summary>
         /// Load answer and questions from a CSV formated file. The file format must be:
         /// "Answer", "question 1", "question 2", ...
         /// 
@@ -158,6 +173,7 @@ namespace QnA
         /// </summary>
         /// <param name="file">path to csv file.</param>
         /// <returns>List of QnADTO objects, one for each line.</returns>
+        /// 
         public List<QnADTO> LoadCSV(string file)
         {
             // Expected format
