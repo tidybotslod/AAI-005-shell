@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
 
-namespace QnA
+namespace PQnA
 {
     public class Program
     {

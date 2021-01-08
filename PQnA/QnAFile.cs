@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
 
-namespace AAI
+namespace PQnA
 {
     public class QnAFile
     {
