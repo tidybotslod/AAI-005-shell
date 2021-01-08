@@ -39,7 +39,9 @@ namespace PQnA.Test
         private async Task<bool> CreateDatabase()
         {
             string createFaq = "..\\..\\..\\..\\Data\\create-faq.csv";
-            bool result - await program.CreateQnA(createFaq);
+            bool result = await program.CreateQnA(createFaq);
+            Assert.IsTrue(result);
+            return result;
         }
 #endif
 #if (AskEnabled)
