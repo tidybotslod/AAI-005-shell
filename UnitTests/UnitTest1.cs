@@ -1,17 +1,17 @@
-#if (TestCrud || TestUpdate)
-#define CreateEnabled
-#define AskEnabled
-#define AddEnabled
-#define UpdateEnabled
-#elif (TestCreate)
+#if (TestCreate)
 #define CreateEnabled
 #elif (TestAsk)
 #define CreateEnabled
 #define AskEnabled
 #elif (TestAdd)
-#define CreateEnabled
-#define AskEnabled
 #define AddEnabled
+#define AskEnabled
+#elif (TestUpdate)
+#define UpdateEnabled
+#define AskEnabled
+#elif (TestPublish)
+#define PublishEnabled
+#define AskEnabled
 #endif
 
 using System;
@@ -48,132 +48,90 @@ namespace PQnA.Test
         //
         // Create QnA knowledge base.
         // Will contain one Question and Answer, the answer has temporary text that will be removed in the update test.
-        private async Task<bool> AskQuestion(bool production)
+        private async Task<bool> AskQuestion()
         {
+            int answers = await program.Ask("HOW CAN I CHANGE MY SHIPPING ADDRESS", false, 8);
+            bool result = answers > 0;
+            Assert.IsTrue(result);
+            return result;
         }
 #endif
-#if (AddEnabled && AskEnabled)
+#if (AddEnabled)
         //
         // Add an additional Question and Answer, the answer has temporary text that will be removed in the update test.
-        private async Task<bool> AddQuestion(bool production)
+        private async Task<bool> AddQuestions()
         {
+            string addFaq = "..\\..\\..\\..\\Data\\add-faq.csv";
+            bool result = await program.AddToQnA(addFaq);
+            Assert.IsTrue(result);
+            int answers = await program.Ask("WHAT DO YOU MEAN BY POINTS? HOW DO I EARN IT?", false, 8);
+            result = answers > 0;
+            Assert.IsTrue(result);
+
+            return result;
         }
 #endif
-#if (UpdateEnabled && AskEnabled)
+#if (UpdateEnabled)
         //
         // Update the existing two quesions to remove temporary text. 
-        private async Task<bool> UpdateQuestions(bool production)
+        private async Task<bool> UpdateQuestions()
         {
+            string updateFaq = "..\\..\\..\\..\\Data\\update-faq.csv";
+            bool result = await program.UpdateQnA(addFaq);
+            Assert.IsTrue(result);
+            return result;
         }
 #endif
-#if (AddEnabled && AskEnabled)
-//
-        // Add full text, will add additional questions to the first two entries.
-        private async Task<bool> AddFullText(bool production)
+#if (PublishedEnabled)
+        //
+        // Update the existing two quesions to remove temporary text. 
+        private async Task<bool> PublishKnowledgeBase()
         {
+            await program.Publish();
+            Assert.IsTrue(result);
+            int answers = await program.Ask("WHAT DO YOU MEAN BY POINTS? HOW DO I EARN IT?", true, 1);
+            bool result = answers > 0;
+            Assert.IsTrue(result);
+            return result;
         }
 #endif
 #if (TestCreate)
         [TestMethod()]
         public void TestCreate()
         {
-            try
-            {
-                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
-            }   
-            finally
-            {
-                if (service.KnowledgeBaseID != null && service.KnowledgeBaseID.Length > 0)
-                {
-                    Task.Run(async () => { Assert.IsTrue(await CleanUp()); }).Wait();
-                }
-            }
+            Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
         }     
 #endif
 #if (TestAsk)
         [TestMethod()]
-        public void TestCreate()
+        public void TestAsk()
         {
-            try
-            {
-                bool production = false;
-                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AskQuestion(production)); }).Wait();
-            }
-            finally
-            {
-                if (service.KnowledgeBaseID != null && service.KnowledgeBaseID.Length > 0)
-                {
-                    Task.Run(async () => { Assert.IsTrue(await CleanUp()); }).Wait();
-                }
-            }
+            Task.Run(async () => { Assert.IsTrue(await AskQuestion()); }).Wait();
         }
 #endif
 #if (TestAdd)
         [TestMethod()]
         public void TestAdd()
         {
-            try
-            {
-                bool production = false;
-                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AskQuestion(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AddQuestion(production)); }).Wait();
-            }   
-            finally
-            {
-                if (service.KnowledgeBaseID != null && service.KnowledgeBaseID.Length > 0)
-                {
-                    Task.Run(async () => { Assert.IsTrue(await CleanUp()); }).Wait();
-                }
-            }
+            Task.Run(async () => { Assert.IsTrue(await AddQuestions()); }).Wait();
+            Task.Run(async () => { Assert.IsTrue(await AskQuestion()); }).Wait();
         }     
 #endif
 #if (TestUpdate)
         [TestMethod()]
         public void TestUpdate()
         {
-            try
-            {
-                bool production = false;
-                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AskQuestion(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AddQuestion(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await UpdateQuestions(production)); }).Wait();
-            }   
-            finally
-            {
-                if (service.KnowledgeBaseID != null && service.KnowledgeBaseID.Length > 0)
-                {
-                    Task.Run(async () => { Assert.IsTrue(await CleanUp()); }).Wait();
-                }
-            }
+            Task.Run(async () => { Assert.IsTrue(await UpdateQuestions()); }).Wait();
+            Task.Run(async () => { Assert.IsTrue(await AskQuestion()); }).Wait();
         }     
 #endif
-#if (TestCrud)
+#if (TestPublish)
         [TestMethod()]
-        public void CrudTest()
+        public void TestPublish()
         {
-            try
-            {
-                bool production = true;
-                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await PublishDatabase());  }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AskQuestion(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AddQuestion(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await UpdateQuestions(production)); }).Wait();
-                Task.Run(async () => { Assert.IsTrue(await AddFullText(production)); }).Wait();
-            }   
-            finally
-            {
-                if (service.KnowledgeBaseID != null && service.KnowledgeBaseID.Length > 0)
-                {
-                    Task.Run(async () => { Assert.IsTrue(await CleanUp()); }).Wait();
-                }
-            }
-        }
-
+            Task.Run(async () => { Assert.IsTrue(await PublishDataBase()); }).Wait();
+            Task.Run(async () => { Assert.IsTrue(await AskQuestion()); }).Wait();
+        }     
 #endif
-
     }
 }
