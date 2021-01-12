@@ -48,9 +48,9 @@ namespace PQnA.Test
         //
         // Create QnA knowledge base.
         // Will contain one Question and Answer, the answer has temporary text that will be removed in the update test.
-        private async Task<bool> AskQuestion()
+        private async Task<bool> AskQuestion(bool production = false)
         {
-            int answers = await program.Ask("HOW CAN I CHANGE MY SHIPPING ADDRESS", false, 8);
+            int answers = await program.Ask("HOW CAN I CHANGE MY SHIPPING ADDRESS", production, 8);
             bool result = answers > 0;
             Assert.IsTrue(result);
             return result;
@@ -77,18 +77,17 @@ namespace PQnA.Test
         private async Task<bool> UpdateQuestions()
         {
             string updateFaq = "..\\..\\..\\..\\Data\\update-faq.csv";
-            bool result = await program.UpdateQnA(addFaq);
+            bool result = await program.UpdateQnA(updateFaq);
             Assert.IsTrue(result);
             return result;
         }
 #endif
-#if (PublishedEnabled)
+#if (PublishEnabled)
         //
         // Update the existing two quesions to remove temporary text. 
         private async Task<bool> PublishKnowledgeBase()
         {
             await program.Publish();
-            Assert.IsTrue(result);
             int answers = await program.Ask("WHAT DO YOU MEAN BY POINTS? HOW DO I EARN IT?", true, 1);
             bool result = answers > 0;
             Assert.IsTrue(result);
@@ -129,8 +128,8 @@ namespace PQnA.Test
         [TestMethod()]
         public void TestPublish()
         {
-            Task.Run(async () => { Assert.IsTrue(await PublishDataBase()); }).Wait();
-            Task.Run(async () => { Assert.IsTrue(await AskQuestion()); }).Wait();
+            Task.Run(async () => { Assert.IsTrue(await PublishKnowledgeBase()); }).Wait();
+            Task.Run(async () => { Assert.IsTrue(await AskQuestion(true)); }).Wait();
         }     
 #endif
     }
